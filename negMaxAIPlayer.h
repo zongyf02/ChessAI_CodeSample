@@ -21,7 +21,6 @@ class NegMaxAIPlayer: public Player<Coordinate> {
     virtual std::vector<unsigned int> orderMoves(const std::vector<Move<Coordinate>> &moves,
         int depth, bool &isPV) const = 0;
     
-    // Returns a vector equal to the number of colours/players
     // If player wins, it gets the maximum INF poitns
     // If player loses, it gets N_INF points,
     // If player draws, it gets 0 point instead.
