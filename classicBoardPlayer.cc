@@ -149,12 +149,8 @@ const std::vector<std::vector<std::vector<int>>> ClassicBoardPlayer::egTable =
     }
 };
 
-ClassicBoardPlayer::Zip::Zip(): score{0}, index{0} {}
-ClassicBoardPlayer::Zip::Zip(int score, unsigned int index): score{score}, index{index} {}
-
-bool ClassicBoardPlayer::Zip::operator<(const Zip &other) const { 
-    return score < other.score;
-}
+ClassicBoardPlayer::ClassicBoardPlayer(Board<Coords2D> *board, int searchDepth):
+    NegMaxAIPlayer{board, searchDepth} {};
 
 int ClassicBoardPlayer::heuristics(Colour curColour, const Move<Coords2D> &move, int depth) const {
     int score = N_INF; // Non captures are checked last
@@ -220,43 +216,6 @@ int ClassicBoardPlayer::heuristics(Colour curColour, const Move<Coords2D> &move,
             return score;
         }
     }
-}
-
-ClassicBoardPlayer::ClassicBoardPlayer(Board<Coords2D> *board, int searchDepth):
-    NegMaxAIPlayer(board, searchDepth) {}
-
-std::vector<unsigned int> ClassicBoardPlayer::orderMoves(const std::vector<Move<Coords2D>> &moves,
-    int depth, bool &isPV) const {
-    Colour curColour = board->getCurColour();
-    unsigned int moveSize = moves.size();
-    
-    // Check if in principal variation
-    if (isPV && (static_cast<size_t>(depth + 1) >= pvTable.size() ||
-        !(pvTable[depth] == board->getLastMove()))) {
-        isPV = false;
-    }
-
-    // Zip move indices with (0 - their heuristics score)
-    std::vector<Zip> zipped(moveSize);
-    for (unsigned int i = 0; i < moveSize; ++i) {
-        if (isPV && moves[i] == pvTable[depth + 1]) {
-            zipped[i] = Zip((INF << 1), i); // PV move is tested first
-        } else {
-            zipped[i] = Zip(heuristics(curColour, moves[i], depth), i);
-        }
-    }
-
-    // Sort by heuristics score
-    std::random_shuffle(zipped.begin(), zipped.end());
-    std::sort(zipped.begin(), zipped.end());
-
-    // Reverse and extract indices from zipped
-    std::vector<unsigned int> res(moveSize);
-    for (unsigned int i = 0; i < moveSize; ++i) {
-        res[i] = zipped[moveSize - 1 - i].index;
-    }
-
-    return res;
 }
 
 int ClassicBoardPlayer::evaluateBoard(Colour curColour) const {

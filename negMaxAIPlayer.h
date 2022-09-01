@@ -17,15 +17,59 @@ class NegMaxAIPlayer: public Player<Coordinate> {
     // Heuristics score for moves, range [N_INF * 2, INF * 2]
     virtual int heuristics(Colour curColour, const Move<Coordinate> &move, int depth) const = 0;
 
-    // Move ordering heuristics
-    virtual std::vector<unsigned int> orderMoves(const std::vector<Move<Coordinate>> &moves,
-        int depth, bool &isPV) const = 0;
-    
     // If player wins, it gets the maximum INF poitns
     // If player loses, it gets N_INF points,
     // If player draws, it gets 0 point instead.
     virtual int evaluateBoard(Colour curColour) const = 0;
 
+    // Struct for move ordering
+    struct Zip {
+        int score;
+        unsigned int index;
+
+        Zip(): score{0}, index{0} {}
+        Zip(int score, unsigned int index): score{score}, index{index} {}
+
+        bool operator<(const Zip &other) const { 
+            return score < other.score;
+        }
+    };
+
+    // Move ordering heuristics
+    std::vector<unsigned int> orderMoves(const std::vector<Move<Coordinate>> &moves,
+        int depth, bool &isPV) const {
+        Colour curColour = this->board->getCurColour();
+        unsigned int moveSize = moves.size();
+        
+        // Check if in principal variation
+        if (isPV && (static_cast<size_t>(depth + 1) >= pvTable.size() ||
+            !(pvTable[depth] == this->board->getLastMove()))) {
+            isPV = false;
+        }
+
+        // Zip move indices with (0 - their heuristics score)
+        std::vector<Zip> zipped(moveSize);
+        for (unsigned int i = 0; i < moveSize; ++i) {
+            if (isPV && moves[i] == pvTable[depth + 1]) {
+                zipped[i] = Zip(__INT_MAX__, i); // PV move is tested first
+            } else {
+                zipped[i] = Zip(heuristics(curColour, moves[i], depth), i);
+            }
+        }
+
+        // Sort by heuristics score
+        std::random_shuffle(zipped.begin(), zipped.end());
+        std::sort(zipped.begin(), zipped.end());
+
+        // Reverse and extract indices from zipped
+        std::vector<unsigned int> res(moveSize);
+        for (unsigned int i = 0; i < moveSize; ++i) {
+            res[i] = zipped[moveSize - 1 - i].index;
+        }
+
+        return res;
+    }
+    
     // NegMax tree search, fail-soft variant
     int negMax(int depth, int alpha, int beta,
         std::vector<SMove<Coordinate>> &newPVTable, bool &isPV) {

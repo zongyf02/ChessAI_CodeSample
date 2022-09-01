@@ -11,22 +11,9 @@ class ClassicBoardPlayer: public NegMaxAIPlayer<Coords2D> {
     const static std::vector<std::vector<std::vector<int>>> mgTable;
     const static std::vector<std::vector<std::vector<int>>> egTable;
 
-    // Struct for move ordering
-    struct Zip {
-        int score;
-        unsigned int index;
-
-        Zip();
-        Zip(int score, unsigned int index);
-
-        bool operator<(const Zip &other) const; 
-    };
-    
+    // Heuristics score for moves, range [N_INF * 2, INF]
     int heuristics(Colour curColour, const Move<Coords2D> &move, int depth) const override;
 
-    std::vector<unsigned int> orderMoves(const std::vector<Move<Coords2D>> &moves,
-        int depth, bool &isPV) const override;
-    
     int evaluateBoard(Colour curColour) const override;
 
 public:
