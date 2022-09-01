@@ -6,6 +6,8 @@ Uses move ordering, PV-List, and a modifierd version of killer/history heuristic
 
 The ClassicBoardPlayer uses [PeSTO](https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function)'s tapered evaluation function and piece-square tables.
 
+Further improvement may include using a transpositional table with Zorbrsit hashing to store previous node evaluations.
+
 Note:
 The Chess AI is based on a chess program that [Michael Lapshin](https://github.com/MichaelLapshin) and I wrote for a Waterloo CS247 project.
 As a result, signicant portion of the code cannot be made public, but is available upon request.
