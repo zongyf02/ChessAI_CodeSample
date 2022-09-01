@@ -9,3 +9,5 @@ Note:
 The Chess AI is based on a chess program that [Michael Lapshin](https://github.com/MichaelLapshin) and I wrote for a Waterloo CS247 project.
 As a result, signicant portion of the code cannot be made public, but is available upon request.
 The code contained here was not submitted as part of the project and would not count for marks.
+
+Sample executable was build for Ubuntu and uses the SDL library.
